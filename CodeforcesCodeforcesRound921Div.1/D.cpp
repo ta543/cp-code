@@ -11,7 +11,6 @@
 #include <cmath>
 #include <complex>
 #include <cstring>
-#include <cstdint>
 #include <functional>
 #include <iomanip>
 #include <iostream>
@@ -37,7 +36,6 @@ using pd = pair<db, db>;
 
 #define tcT template <class T
 #define tcTU tcT, class U
-
 tcT > using V = vector<T>;
 tcT, size_t SZ > using AR = array<T, SZ>;
 using vi = V<int>;
@@ -75,7 +73,7 @@ tcT > int upb(V<T> &a, const T &b) { return int(ub(all(a), b) - bg(a)); }
 #define rep(a) F0R(_, a)
 #define each(a, x) for (auto &a : x)
 
-const int MOD = 998244353;  // 1e9+7;
+const int MOD = 1e9 + 7;
 const int MX = (int)2e5 + 5;
 const ll BIG = 1e18;  // not too close to LLONG_MAX
 const db PI = acos((db)-1);
@@ -85,10 +83,10 @@ template <class T> using pqg = priority_queue<T, vector<T>, greater<T>>;
 
 // bitwise ops
 constexpr int pct(int x) { return __builtin_popcount(x); }  // # of bits set
-constexpr int bits(int x) {
-
+constexpr int bits(int x) {  // assert(x >= 0); // make C++11 compatible until
+                             // USACO updates ...
     return x == 0 ? 0 : 31 - __builtin_clz(x);
-}
+}  // floor(log2(x))
 constexpr int p2(int x) { return 1 << x; }
 constexpr int msk2(int x) { return p2(x) - 1; }
 
@@ -117,14 +115,6 @@ tcTU > T fstTrue(T lo, T hi, U f) {
 }
 tcTU > T lstTrue(T lo, T hi, U f) {
     --lo;
-    T d = 1;
-    while (lo + d < hi) {
-        if (!f(lo + d)) {
-            hi = lo + d - 1;
-            break;
-        }
-        d *= 2;
-    }
     assert(lo <= hi);  // assuming f is decreasing
     while (lo < hi) {  // find first index such that f is true
         T mid = lo + (hi - lo + 1) / 2;
@@ -246,7 +236,7 @@ void err_prefix(str func, int line, string args) {
 #endif
 
 const auto beg_time = std::chrono::high_resolution_clock::now();
-
+// https://stackoverflow.com/questions/47980498/accurate-c-c-clock-on-a-multi-core-processor-with-auto-overclock?noredirect=1&lq=1
 double time_elapsed() {
     return chrono::duration<double>(std::chrono::high_resolution_clock::now() -
                                     beg_time)
@@ -260,8 +250,10 @@ void setOut(str s) { freopen(s.c_str(), "w", stdout); }
 void setIO(str s = "") {
     cin.tie(0)->sync_with_stdio(0);  // unsync C / C++ I/O streams
     cout << fixed << setprecision(12);
-
-    if (sz(s)) setIn(s + ".in"), setOut(s + ".out");
+    // cin.exceptions(cin.failbit);
+    // throws exception when do smth illegal
+    // ex. try to read letter into int
+    if (sz(s)) setIn(s + ".in"), setOut(s + ".out");  // for old USACO
 }
 }  // namespace FileIO
 
@@ -275,14 +267,14 @@ void setIO(str s = "") {
  * also see https://github.com/ecnerwala/cp-book/blob/master/src/modnum.hpp
  * (ecnerwal) Verification: https://open.kattis.com/problems/modulararithmetic
  */
- 
+
 template <int MOD, int RT> struct mint {
     static const int mod = MOD;
-    static constexpr mint rt() { return RT; }  // primitive root for FFT
+    static constexpr mint rt() { return RT; } 
     int v;
     explicit operator int() const {
         return v;
-    }  // explicit -> don't silently convert to int
+    }
     mint() : v(0) {}
     mint(ll _v) {
         v = int((-MOD < _v && _v < MOD) ? _v : _v % MOD);
@@ -301,7 +293,7 @@ template <int MOD, int RT> struct mint {
         os << int(a);
         return os;
     }
- 
+
     mint &operator+=(const mint &o) {
         if ((v += o.v) >= MOD) v -= MOD;
         return *this;
@@ -326,7 +318,7 @@ template <int MOD, int RT> struct mint {
         assert(a.v != 0);
         return pow(a, MOD - 2);
     }
- 
+
     mint operator-() const { return mint(-v); }
     mint &operator++() { return *this += 1; }
     mint &operator--() { return *this -= 1; }
@@ -335,20 +327,20 @@ template <int MOD, int RT> struct mint {
     friend mint operator*(mint a, const mint &b) { return a *= b; }
     friend mint operator/(mint a, const mint &b) { return a /= b; }
 };
- 
-using mi = mint<MOD, 5>;  // 5 is primitive root for both common mods
+
+using mi = mint<MOD, 5>; 
 using vmi = V<mi>;
 using pmi = pair<mi, mi>;
 using vpmi = V<pmi>;
- 
-V<vmi> scmb;  // small combinations
+
+V<vmi> scmb; 
 void genComb(int SZ) {
     scmb.assign(SZ, vmi(SZ));
     scmb[0][0] = 1;
     FOR(i, 1, SZ)
     F0R(j, i + 1) scmb[i][j] = scmb[i - 1][j] + (j ? scmb[i - 1][j - 1] : 0);
 }
- 
+
 /**
  * Description: Combinations modulo a prime $MOD$. Assumes $2\le N \le MOD$.
  * Time: O(N)
@@ -356,10 +348,10 @@ void genComb(int SZ) {
  * Verification: https://dmoj.ca/problem/tle17c4p5
  * Usage: F.init(10); F.C(6, 4); // 15
  */
- 
+
 struct {
     vmi invs, fac, ifac;
-    void init(int N) {  // idempotent
+    void init(int N) {
         invs.rsz(N), fac.rsz(N), ifac.rsz(N);
         invs[1] = fac[0] = ifac[0] = 1;
         FOR(i, 2, N) invs[i] = mi(-(ll)MOD / i * (int)invs[MOD % i]);
@@ -370,7 +362,7 @@ struct {
         return fac[a] * ifac[b] * ifac[a - b];
     }
 } F;
- 
+
 mi at_least(int N, int M, int mn) {
     if (mn > 0) return 0;
     if (mn > N - M) return 0;
@@ -378,16 +370,16 @@ mi at_least(int N, int M, int mn) {
     mi res = F.C(N + M, M) - F.C(N + M, M + mn);
     return res;
 }
- 
+
 mi solve(int N, int M, int K) {
     return at_least(N, M, K - M) - at_least(N, M, K - M + 1);
 }
- 
+
 void solve(int tc) {
     def(int, N, M, K);
     ps(solve(N, M, K));
 }
- 
+
 int main() {
     setIO();
     F.init(5000);

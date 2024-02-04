@@ -11,7 +11,6 @@
 #include <cmath>
 #include <complex>
 #include <cstring>
-#include <cstdint>
 #include <functional>
 #include <iomanip>
 #include <iostream>
@@ -37,7 +36,6 @@ using pd = pair<db, db>;
 
 #define tcT template <class T
 #define tcTU tcT, class U
-
 tcT > using V = vector<T>;
 tcT, size_t SZ > using AR = array<T, SZ>;
 using vi = V<int>;
@@ -75,20 +73,20 @@ tcT > int upb(V<T> &a, const T &b) { return int(ub(all(a), b) - bg(a)); }
 #define rep(a) F0R(_, a)
 #define each(a, x) for (auto &a : x)
 
-const int MOD = 998244353;  // 1e9+7;
+const int MOD = 1e9 + 7;
 const int MX = (int)2e5 + 5;
-const ll BIG = 1e18;  // not too close to LLONG_MAX
+const ll BIG = 1e18;
 const db PI = acos((db)-1);
-const int dx[4]{1, 0, -1, 0}, dy[4]{0, 1, 0, -1};  // for every grid problem!!
+const int dx[4]{1, 0, -1, 0}, dy[4]{0, 1, 0, -1};
 mt19937 rng((uint32_t)chrono::steady_clock::now().time_since_epoch().count());
 template <class T> using pqg = priority_queue<T, vector<T>, greater<T>>;
 
 // bitwise ops
 constexpr int pct(int x) { return __builtin_popcount(x); }  // # of bits set
-constexpr int bits(int x) {
-
+constexpr int bits(int x) {  // assert(x >= 0); // make C++11 compatible until
+                             // USACO updates ...
     return x == 0 ? 0 : 31 - __builtin_clz(x);
-}
+}  // floor(log2(x))
 constexpr int p2(int x) { return 1 << x; }
 constexpr int msk2(int x) { return p2(x) - 1; }
 
@@ -108,8 +106,8 @@ tcT > bool ckmax(T &a, const T &b) {
 
 tcTU > T fstTrue(T lo, T hi, U f) {
     ++hi;
-    assert(lo <= hi);  // assuming f is increasing
-    while (lo < hi) {  // find first index such that f is true
+    assert(lo <= hi);
+    while (lo < hi) {
         T mid = lo + (hi - lo) / 2;
         f(mid) ? hi = mid : lo = mid + 1;
     }
@@ -117,22 +115,14 @@ tcTU > T fstTrue(T lo, T hi, U f) {
 }
 tcTU > T lstTrue(T lo, T hi, U f) {
     --lo;
-    T d = 1;
-    while (lo + d < hi) {
-        if (!f(lo + d)) {
-            hi = lo + d - 1;
-            break;
-        }
-        d *= 2;
-    }
-    assert(lo <= hi);  // assuming f is decreasing
-    while (lo < hi) {  // find first index such that f is true
+    assert(lo <= hi);
+    while (lo < hi) {
         T mid = lo + (hi - lo + 1) / 2;
         f(mid) ? lo = mid : hi = mid - 1;
     }
     return lo;
 }
-tcT > void remDup(vector<T> &v) {  // sort and remove duplicates
+tcT > void remDup(vector<T> &v) {
     sort(all(v));
     v.erase(unique(all(v)), end(v));
 }
@@ -275,7 +265,7 @@ void setIO(str s = "") {
  * also see https://github.com/ecnerwala/cp-book/blob/master/src/modnum.hpp
  * (ecnerwal) Verification: https://open.kattis.com/problems/modulararithmetic
  */
- 
+
 template <int MOD, int RT> struct mint {
     static const int mod = MOD;
     static constexpr mint rt() { return RT; }  // primitive root for FFT
@@ -301,7 +291,7 @@ template <int MOD, int RT> struct mint {
         os << int(a);
         return os;
     }
- 
+
     mint &operator+=(const mint &o) {
         if ((v += o.v) >= MOD) v -= MOD;
         return *this;
@@ -326,7 +316,7 @@ template <int MOD, int RT> struct mint {
         assert(a.v != 0);
         return pow(a, MOD - 2);
     }
- 
+
     mint operator-() const { return mint(-v); }
     mint &operator++() { return *this += 1; }
     mint &operator--() { return *this -= 1; }
@@ -335,24 +325,23 @@ template <int MOD, int RT> struct mint {
     friend mint operator*(mint a, const mint &b) { return a *= b; }
     friend mint operator/(mint a, const mint &b) { return a /= b; }
 };
- 
-using mi = mint<MOD, 5>;  // 5 is primitive root for both common mods
+
+using mi = mint<MOD, 5>;
 using vmi = V<mi>;
 using pmi = pair<mi, mi>;
 using vpmi = V<pmi>;
- 
-V<vmi> scmb;  // small combinations
+
+V<vmi> scmb;
 void genComb(int SZ) {
     scmb.assign(SZ, vmi(SZ));
     scmb[0][0] = 1;
     FOR(i, 1, SZ)
     F0R(j, i + 1) scmb[i][j] = scmb[i - 1][j] + (j ? scmb[i - 1][j - 1] : 0);
 }
- 
+
 vmi harmonic{0};
 vmi invs{0};
-// using mi = db;
- 
+
 mi get_inv(int x) {
     while (sz(invs) <= x) {
         int nxt = sz(invs);
@@ -360,7 +349,7 @@ mi get_inv(int x) {
     }
     return invs.at(x);
 }
- 
+
 mi get_harmonic(int x) {
     while (sz(harmonic) <= x) {
         int nxt = sz(harmonic);
@@ -368,74 +357,37 @@ mi get_harmonic(int x) {
     }
     return harmonic.at(x);
 }
- 
+
 mi harmonic_sum(int l, int r) {
     if (l > r) return 0;
     return get_harmonic(r) - get_harmonic(l - 1);
 }
- 
+
 mi range_len(int l, int r) {
     if (l >= r) return 0;
     return r - l;
 }
- 
-// mi contrib_slow(int a, int b, int N, int M) {
-//  assert(1 <= a && a <= N);
-//  assert(1 <= b && b <= M);
-//  mi ans = 0;
-//  // if (a == N) {
-//  //  FOR(x, 1, N) ans += mi(1) / (x + b);
-//  //  return ans;
-//  // }
-//  FOR(x, 1, N) {
-//      if (x <= a) {
-//          // suppose assigned t.
-//          // [1, x) must be > t
-//          // then can't have both (< t in (x, a]) and (< t in [1, b])
-//          if (a < N) {
-//              ans += mi(1) / a;
-//          }  // prob that it's the first one in [1, a]
-//          if (b < M) {
-//              ans += mi(1) / (x + b);
-//          }  // prob that it's before everything in [1, b]
-//          if (a < N && b < M) { ans -= mi(1) / (a + b); }
- 
-//          // < everything in [1, a]
-//          // < everything in [1, x] and [1, b]
-//          // minus: > everything in [1, a] and [1, b]
-//      } else {
-//          ans += mi(1) / x;
-//      }
-//  }
-//  return ans;
-// }
- 
+
 mi contrib(int a, int b, int N, int M) {
     assert(1 <= a && a <= N);
     assert(1 <= b && b <= M);
     mi ans = harmonic_sum(a + 1, N - 1);
-    // if (a == N) {
-    //  FOR(x, 1, N) ans += mi(1) / (x + b);
-    //  return ans;
-    // }
     if (1 < min(N, a + 1)) {
         int len = min(N, a + 1) - 1;
         if (a < N) ans += len * get_inv(a);
         if (b < M) {
             ans += harmonic_sum(1 + b, min(N, a + 1) - 1 + b);
-            // FOR(x, 1, min(N, a + 1)) ans += mi(1) / (x + b); }
         }
         if (a < N && b < M) ans -= len * get_inv(a + b);
     }
     return ans;
 }
- 
+
 mi solve(int N, int M, ll K) {
     auto E_at_most = [&](int a, int b) {
         mi ans = 0;
         ans += contrib(a, b, N, M);
         ans += contrib(b, a, M, N);
-        // dbg("GOT", a, b, ans);
         return ans;
     };
     vpi rects;
@@ -446,7 +398,6 @@ mi solve(int N, int M, ll K) {
             rects.pb({a, b});
         }
     }
-    // dbg(rects);
     mi ans = 0;
     F0R(i, sz(rects)) ans += E_at_most(rects[i].f, rects[i].s);
     F0R(i, sz(rects) - 1)
@@ -454,19 +405,25 @@ mi solve(int N, int M, ll K) {
                      min(rects[i].s, rects[i + 1].s));
     return ans;
 }
- 
+
 void solve(int tc) {
     def(int, N, M);
     def(ll, K);
     ps(solve(N, M, K));
 }
- 
+
 int main() {
     setIO();
     int TC;
     re(TC);
     FOR(i, 1, TC + 1) solve(i);
 }
+
+
+
+
+
+
 
 
 
