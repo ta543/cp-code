@@ -273,7 +273,7 @@ void solve(int tc) {
     vi max_with_ans{2, 2, 2, 2};
     while (max_with_ans.bk < max(N, (int)1e5)) {
         int n = sz(max_with_ans);
-        max_with_ans.pb((max_with_ans.at(n - 2) + max_with_ans.at(n - 3) +
+        max_with_ans.pb((max_with_ans.at(n - 2) + max_with_ans.at(n - 3) +a
                          max_with_ans.at(n - 4)) /
                         2);
     }
