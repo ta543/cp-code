@@ -2,365 +2,11 @@
 // problem-url: https://codeforces.com/contest/1928/problem/D
 // 
 
-/*
-#include <algorithm>
-#include <array>
-#include <bitset>
-#include <cassert>
-#include <chrono>
-#include <climits>
-#include <cmath>
-#include <complex>
-#include <cstring>
-#include <cstdint>
-#include <functional>
-#include <iomanip>
-#include <iostream>
-#include <map>
-#include <numeric>
-#include <queue>
-#include <random>
-#include <set>
-#include <vector>
-using namespace std;
-
-using ll = long long;
-using db = long double;
-using str = string;
-
-// pairs
-using pi = pair<int, int>;
-using pl = pair<ll, ll>;
-using pd = pair<db, db>;
-#define mp make_pair
-#define f first
-#define s second
-
-#define tcT template <class T
-#define tcTU tcT, class U
-
-tcT > using V = vector<T>;
-tcT, size_t SZ > using AR = array<T, SZ>;
-using vi = V<int>;
-using vb = V<bool>;
-using vl = V<ll>;
-using vd = V<db>;
-using vs = V<str>;
-using vpi = V<pi>;
-using vpl = V<pl>;
-using vpd = V<pd>;
-
-// vectors
-#define sz(x) int((x).size())
-#define bg(x) begin(x)
-#define all(x) bg(x), end(x)
-#define rall(x) x.rbegin(), x.rend()
-#define sor(x) sort(all(x))
-#define rsz resize
-#define ins insert
-#define pb push_back
-#define eb emplace_back
-#define ft front()
-#define bk back()
-
-#define lb lower_bound
-#define ub upper_bound
-tcT > int lwb(V<T> &a, const T &b) { return int(lb(all(a), b) - bg(a)); }
-tcT > int upb(V<T> &a, const T &b) { return int(ub(all(a), b) - bg(a)); }
-
-// loops
-#define FOR(i, a, b) for (int i = (a); i < (b); ++i)
-#define F0R(i, a) FOR(i, 0, a)
-#define ROF(i, a, b) for (int i = (b)-1; i >= (a); --i)
-#define R0F(i, a) ROF(i, 0, a)
-#define rep(a) F0R(_, a)
-#define each(a, x) for (auto &a : x)
-
-const int MOD = 998244353;  // 1e9+7;
-const int MX = (int)2e5 + 5;
-const ll BIG = 1e18;  // not too close to LLONG_MAX
-const db PI = acos((db)-1);
-const int dx[4]{1, 0, -1, 0}, dy[4]{0, 1, 0, -1};  // for every grid problem!!
-mt19937 rng((uint32_t)chrono::steady_clock::now().time_since_epoch().count());
-template <class T> using pqg = priority_queue<T, vector<T>, greater<T>>;
-
-// bitwise ops
-constexpr int pct(int x) { return __builtin_popcount(x); }  // # of bits set
-constexpr int bits(int x) {
-
-    return x == 0 ? 0 : 31 - __builtin_clz(x);
-}
-constexpr int p2(int x) { return 1 << x; }
-constexpr int msk2(int x) { return p2(x) - 1; }
-
-ll cdiv(ll a, ll b) {
-    return a / b + ((a ^ b) > 0 && a % b);
-}  // divide a by b rounded up
-ll fdiv(ll a, ll b) {
-    return a / b - ((a ^ b) < 0 && a % b);
-}  // divide a by b rounded down
-
-tcT > bool ckmin(T &a, const T &b) {
-    return b < a ? a = b, 1 : 0;
-}  // set a = min(a,b)
-tcT > bool ckmax(T &a, const T &b) {
-    return a < b ? a = b, 1 : 0;
-}  // set a = max(a,b)
-
-tcTU > T fstTrue(T lo, T hi, U f) {
-    ++hi;
-    assert(lo <= hi);  // assuming f is increasing
-    while (lo < hi) {  // find first index such that f is true
-        T mid = lo + (hi - lo) / 2;
-        f(mid) ? hi = mid : lo = mid + 1;
-    }
-    return lo;
-}
-tcTU > T lstTrue(T lo, T hi, U f) {
-    --lo;
-    T d = 1;
-    while (lo + d < hi) {
-        if (!f(lo + d)) {
-            hi = lo + d - 1;
-            break;
-        }
-        d *= 2;
-    }
-    assert(lo <= hi);  // assuming f is decreasing
-    while (lo < hi) {  // find first index such that f is true
-        T mid = lo + (hi - lo + 1) / 2;
-        f(mid) ? lo = mid : hi = mid - 1;
-    }
-    return lo;
-}
-tcT > void remDup(vector<T> &v) {  // sort and remove duplicates
-    sort(all(v));
-    v.erase(unique(all(v)), end(v));
-}
-tcTU > void safeErase(T &t, const U &u) {
-    auto it = t.find(u);
-    assert(it != end(t));
-    t.erase(it);
-}
-
-inline namespace IO {
-#define SFINAE(x, ...)                                                         \
-    template <class, class = void> struct x : std::false_type {};              \
-    template <class T> struct x<T, std::void_t<__VA_ARGS__>> : std::true_type {}
-
-SFINAE(DefaultI, decltype(std::cin >> std::declval<T &>()));
-SFINAE(DefaultO, decltype(std::cout << std::declval<T &>()));
-SFINAE(IsTuple, typename std::tuple_size<T>::type);
-SFINAE(Iterable, decltype(std::begin(std::declval<T>())));
-
-template <auto &is> struct Reader {
-    template <class T> void Impl(T &t) {
-        if constexpr (DefaultI<T>::value) is >> t;
-        else if constexpr (Iterable<T>::value) {
-            for (auto &x : t) Impl(x);
-        } else if constexpr (IsTuple<T>::value) {
-            std::apply([this](auto &...args) { (Impl(args), ...); }, t);
-        } else static_assert(IsTuple<T>::value, "No matching type for read");
-    }
-    template <class... Ts> void read(Ts &...ts) { ((Impl(ts)), ...); }
-};
-
-template <class... Ts> void re(Ts &...ts) { Reader<cin>{}.read(ts...); }
-#define def(t, args...)                                                        \
-    t args;                                                                    \
-    re(args);
-
-template <auto &os, bool debug, bool print_nd> struct Writer {
-    string comma() const { return debug ? "," : ""; }
-    template <class T> constexpr char Space(const T &) const {
-        return print_nd && (Iterable<T>::value or IsTuple<T>::value) ? '\n'
-                                                                     : ' ';
-    }
-    template <class T> void Impl(T const &t) const {
-        if constexpr (DefaultO<T>::value) os << t;
-        else if constexpr (Iterable<T>::value) {
-            if (debug) os << '{';
-            int i = 0;
-            for (auto &&x : t)
-                ((i++) ? (os << comma() << Space(x), Impl(x)) : Impl(x));
-            if (debug) os << '}';
-        } else if constexpr (IsTuple<T>::value) {
-            if (debug) os << '(';
-            std::apply(
-                [this](auto const &...args) {
-                    int i = 0;
-                    (((i++) ? (os << comma() << " ", Impl(args)) : Impl(args)),
-                     ...);
-                },
-                t);
-            if (debug) os << ')';
-        } else static_assert(IsTuple<T>::value, "No matching type for print");
-    }
-    template <class T> void ImplWrapper(T const &t) const {
-        if (debug) os << "\033[0;31m";
-        Impl(t);
-        if (debug) os << "\033[0m";
-    }
-    template <class... Ts> void print(Ts const &...ts) const {
-        ((Impl(ts)), ...);
-    }
-    template <class F, class... Ts>
-    void print_with_sep(const std::string &sep, F const &f,
-                        Ts const &...ts) const {
-        ImplWrapper(f), ((os << sep, ImplWrapper(ts)), ...), os << '\n';
-    }
-    void print_with_sep(const std::string &) const { os << '\n'; }
-};
-
-template <class... Ts> void pr(Ts const &...ts) {
-    Writer<cout, false, true>{}.print(ts...);
-}
-template <class... Ts> void ps(Ts const &...ts) {
-    Writer<cout, false, true>{}.print_with_sep(" ", ts...);
-}
-}  // namespace IO
-
-inline namespace Debug {
-template <typename... Args> void err(Args... args) {
-    Writer<cerr, true, false>{}.print_with_sep(" | ", args...);
-}
-template <typename... Args> void errn(Args... args) {
-    Writer<cerr, true, true>{}.print_with_sep(" | ", args...);
-}
-
-void err_prefix(str func, int line, string args) {
-    cerr << "\033[0;31m\u001b[1mDEBUG\033[0m"
-         << " | "
-         << "\u001b[34m" << func << "\033[0m"
-         << ":"
-         << "\u001b[34m" << line << "\033[0m"
-         << " - "
-         << "[" << args << "] = ";
-}
-
-#ifdef LOCAL
-#define dbg(args...) err_prefix(__FUNCTION__, __LINE__, #args), err(args)
-#define dbgn(args...) err_prefix(__FUNCTION__, __LINE__, #args), errn(args)
-#else
-#define dbg(...)
-#define dbgn(args...)
-#endif
-
-const auto beg_time = std::chrono::high_resolution_clock::now();
-
-double time_elapsed() {
-    return chrono::duration<double>(std::chrono::high_resolution_clock::now() -
-                                    beg_time)
-        .count();
-}
-}  // namespace Debug
-
-inline namespace FileIO {
-void setIn(str s) { freopen(s.c_str(), "r", stdin); }
-void setOut(str s) { freopen(s.c_str(), "w", stdout); }
-void setIO(str s = "") {
-    cin.tie(0)->sync_with_stdio(0);  // unsync C / C++ I/O streams
-    cout << fixed << setprecision(12);
-
-    if (sz(s)) setIn(s + ".in"), setOut(s + ".out");
-}
-}  // namespace FileIO
-
-tcT > struct BIT {
-    int N;
-    V<T> data;
-    void init(int _N) {
-        N = _N;
-        data.rsz(N);
-    }
-    void add(int p, T x) {
-        for (++p; p <= N; p += p & -p) data[p - 1] += x;
-    }
-    T sum(int l, int r) { return sum(r + 1) - sum(l); }
-    T sum(int r) {
-        T s = 0;
-        for (; r; r -= r & -r) s += data[r - 1];
-        return s;
-    }
-    int lower_bound(T sum) {
-        if (sum <= 0) return -1;
-        int pos = 0;
-        for (int pw = 1 << 25; pw; pw >>= 1) {
-            int npos = pos + pw;
-            if (npos <= N && data[npos - 1] < sum)
-                pos = npos, sum -= data[pos - 1];
-        }
-        return pos;
-    }
-};
- 
-BIT<ll> B;
-int N, M, Q;
- 
-ll contrib(ll len) { return len * (len - 1) / 2; }
-ll ari(ll l, ll r) { return (l + r) * (r - l + 1) / 2; }
- 
-int main() {
-    setIO();
-    re(N, M, Q);
-    B.init(N + 1);
-    auto add = [&](pi l, pi r, int mul) {
-        B.add(r.f, l.s * contrib(r.f - l.f) * mul);
-    };
- 
-    map<int, int> val;
-    {
-        vi x(M);
-        re(x);
-        vi v(M);
-        re(v);
-        F0R(i, M) val[x[i]] = v[i];
-        for (auto it = begin(val); next(it) != end(val); ++it) {
-            add(*it, *next(it), 1);
-        }
-    }
-    auto query_none = [&](int l, int r) -> ll {
-        if (l > r) return 0;
-        auto it = val.lb(l);
-        assert(it->f > r);
-        return prev(it)->s * ari(it->f - r, it->f - l);
-    };
- 
-    rep(Q) {
-        def(int, T);
-        if (T == 1) {
-            def(int, x, v);
-            val[x] = v;
-            auto it = val.find(x);
-            add(*it, *next(it), 1);
-            add(*prev(it), *it, 1);
-            add(*prev(it), *next(it), -1);
-        } else {
-            def(int, l, r);
-            auto it = val.lb(l);
-            ll ans = B.sum(r + 1) - B.sum(l);
-            if (it->f <= r) {
-                auto last_it = prev(val.ub(r));
-                ans += query_none(last_it->f + 1, r);
-                ans -= B.sum(it->f + 1) - B.sum(it->f);
-                ans += query_none(l, it->f - 1);
-            } else {
-                ans += query_none(l, r);
-            }
-            ps(ans);
-        }
-    }
- 
-}
-*/
-
 #line 1 "library/my_template.hpp"
 #if defined(LOCAL)
 #include <my_template_compiled.hpp>
 #else
 
-// 参考 https://codeforces.com/blog/entry/96344
-// bmi,bmi2,lzcnt は ucup でコンパイルエラー
 #pragma GCC optimize("Ofast,unroll-loops")
 #pragma GCC target("avx2,popcnt")
 
@@ -548,7 +194,6 @@ inline bool chmin(T &a, const S &b) {
   return (a > b ? a = b, 1 : 0);
 }
 
-// ? は -1
 vc<int> s_to_vi(const string &S, char first_char) {
   vc<int> A(S.size());
   FOR(i, S.size()) { A[i] = (S[i] != '?' ? S[i] - first_char : -1); }
@@ -870,7 +515,6 @@ ll RNG(ll l, ll r) { return l + RNG_64() % (r - l); }
 #line 2 "library/mod/mongomery_modint.hpp"
 
 // odd mod.
-// x の代わりに rx を持つ
 template <int id, typename U1, typename U2>
 struct Mongomery_modint {
   using mint = Mongomery_modint;
@@ -1002,7 +646,6 @@ ll find_prime_factor(ll n) {
   return -1;
 }
 
-// ソートしてくれる
 vc<pair<ll, int>> factor(ll n) {
   assert(n >= 1);
   vc<pair<ll, int>> pf;
@@ -1053,13 +696,11 @@ vc<ll> divisors_by_pf(const vc<pair<ll, int>>& pf) {
   return div;
 }
 
-// sort はしない
 vc<ll> divisors(ll N) {
   auto pf = factor(N);
   return divisors_by_pf(pf);
 }
 
-// sort はしない
 vc<ll> divisors_by_lpf(ll N, vc<int>& lpf) {
   auto pf = factor_by_lpf(N, lpf);
   return divisors_by_pf(pf);
