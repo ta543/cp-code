@@ -328,19 +328,3 @@ int main() {
     re(TC);
     FOR(i, 1, TC + 1) solve(i);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
