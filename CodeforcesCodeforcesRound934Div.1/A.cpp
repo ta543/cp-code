@@ -317,9 +317,9 @@ void no(bool tc = 1) { yes(!tc); }
  
 void solve(int tc) {
     def(int, N);
-    vector<int> A(N);
+    vi A(N);
     for(int& x : A) re(x);
-    vector<int> freq(N+1);
+    vi freq(N+1);
     for(int x : A) freq[x]++;
     int S = 0;
     int S1 = 0;
