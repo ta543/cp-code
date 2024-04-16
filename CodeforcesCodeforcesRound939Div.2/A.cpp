@@ -1,6 +1,6 @@
-// time-limit: 2000
-// problem-url: https://codeforces.com/contest/1924/problem/A
-// 
+// time-limit: 1000
+// problem-url: https://codeforces.com/contest/1956/problem/A
+//
 
 #include <algorithm>
 #include <array>
@@ -37,6 +37,7 @@ using pd = pair<db, db>;
 
 #define tcT template <class T
 #define tcTU tcT, class U
+
 tcT > using V = vector<T>;
 tcT, size_t SZ > using AR = array<T, SZ>;
 using vi = V<int>;
@@ -49,11 +50,11 @@ using vpl = V<pl>;
 using vpd = V<pd>;
 
 // vectors
-#define sz(x) int((x).size())
-#define bg(x) begin(x)
-#define all(x) bg(x), end(x)
-#define rall(x) x.rbegin(), x.rend()
-#define sor(x) sort(all(x))
+#define sz(X) int((X).size())
+#define bg(X) begin(X)
+#define all(X) bg(X), end(X)
+#define rall(X) X.rbegin(), X.rend()
+#define sor(X) sort(all(X))
 #define rsz resize
 #define ins insert
 #define pb push_back
@@ -67,12 +68,17 @@ tcT > int lwb(V<T> &a, const T &b) { return int(lb(all(a), b) - bg(a)); }
 tcT > int upb(V<T> &a, const T &b) { return int(ub(all(a), b) - bg(a)); }
 
 // loops
-#define FOR(i, a, b) for (int i = (a); i < (b); ++i)
-#define F0R(i, a) FOR(i, 0, a)
-#define ROF(i, a, b) for (int i = (b)-1; i >= (a); --i)
-#define R0F(i, a) ROF(i, 0, a)
-#define rep(a) F0R(_, a)
-#define each(a, x) for (auto &a : x)
+#define FOR1(a) for (ll _ = 0; _ < ll(a); ++_)
+#define FOR2(i, a) for (ll i = 0; i < ll(a); ++i)
+#define FOR3(i, a, b) for (ll i = a; i < ll(b); ++i)
+#define FOR4(i, a, b, c) for (ll i = a; i < ll(b); i += (c))
+#define FOR1_R(a) for (ll i = (a)-1; i >= ll(0); --i)
+#define FOR2_R(i, a) for (ll i = (a)-1; i >= ll(0); --i)
+#define FOR3_R(i, a, b) for (ll i = (b)-1; i >= ll(a); --i)
+#define overload4(a, b, c, d, e, ...) e
+#define overload3(a, b, c, d, ...) d
+#define FOR(...) overload4(__VA_ARGS__, FOR4, FOR3, FOR2, FOR1)(__VA_ARGS__)
+#define FOR_R(...) overload3(__VA_ARGS__, FOR3_R, FOR2_R, FOR1_R)(__VA_ARGS__)
 
 const int MOD = 998244353;  // 1e9+7;
 const int MX = (int)2e5 + 5;
@@ -83,13 +89,13 @@ mt19937 rng((uint32_t)chrono::steady_clock::now().time_since_epoch().count());
 template <class T> using pqg = priority_queue<T, vector<T>, greater<T>>;
 
 // bitwise ops
-constexpr int pct(int x) { return __builtin_popcount(x); }  // # of bits set
-constexpr int bits(int x) {  // assert(x >= 0); // make C++11 compatible until
-                             // USACO updates ...
-    return x == 0 ? 0 : 31 - __builtin_clz(x);
-}  // floor(log2(x))
-constexpr int p2(int x) { return 1 << x; }
-constexpr int msk2(int x) { return p2(x) - 1; }
+constexpr int pct(int X) { return __builtin_popcount(X); }  // # of bits set
+constexpr int bits(int X) {
+
+    return X == 0 ? 0 : 31 - __builtin_clz(X);
+}
+constexpr int p2(int X) { return 1 << X; }
+constexpr int msk2(int X) { return p2(X) - 1; }
 
 ll cdiv(ll a, ll b) {
     return a / b + ((a ^ b) > 0 && a % b);
@@ -108,7 +114,7 @@ tcT > bool ckmax(T &a, const T &b) {
 tcTU > T fstTrue(T lo, T hi, U f) {
     ++hi;
     assert(lo <= hi);  // assuming f is increasing
-    while (lo < hi) {  // find first index such that f is true
+    while (lo < hi) {  // find first indeX such that f is true
         T mid = lo + (hi - lo) / 2;
         f(mid) ? hi = mid : lo = mid + 1;
     }
@@ -116,8 +122,16 @@ tcTU > T fstTrue(T lo, T hi, U f) {
 }
 tcTU > T lstTrue(T lo, T hi, U f) {
     --lo;
+    T d = 1;
+    while (lo + d < hi) {
+        if (!f(lo + d)) {
+            hi = lo + d - 1;
+            break;
+        }
+        d *= 2;
+    }
     assert(lo <= hi);  // assuming f is decreasing
-    while (lo < hi) {  // find first index such that f is true
+    while (lo < hi) {  // find first indeX such that f is true
         T mid = lo + (hi - lo + 1) / 2;
         f(mid) ? lo = mid : hi = mid - 1;
     }
@@ -135,21 +149,21 @@ tcTU > void safeErase(T &t, const U &u) {
 
 inline namespace IO {
 #define SFINAE(x, ...)                                                         \
-    template <class, class = void> struct x : std::false_type {};              \
-    template <class T> struct x<T, std::void_t<__VA_ARGS__>> : std::true_type {}
+    template <class, class = void> struct x : false_type {};              \
+    template <class T> struct x<T, void_t<__VA_ARGS__>> : true_type {}
 
-SFINAE(DefaultI, decltype(std::cin >> std::declval<T &>()));
-SFINAE(DefaultO, decltype(std::cout << std::declval<T &>()));
-SFINAE(IsTuple, typename std::tuple_size<T>::type);
-SFINAE(Iterable, decltype(std::begin(std::declval<T>())));
+SFINAE(DefaultI, decltype(cin >> declval<T &>()));
+SFINAE(DefaultO, decltype(cout << declval<T &>()));
+SFINAE(IsTuple, typename tuple_size<T>::type);
+SFINAE(Iterable, decltype(begin(declval<T>())));
 
 template <auto &is> struct Reader {
     template <class T> void Impl(T &t) {
         if constexpr (DefaultI<T>::value) is >> t;
         else if constexpr (Iterable<T>::value) {
-            for (auto &x : t) Impl(x);
+            for (auto &X : t) Impl(X);
         } else if constexpr (IsTuple<T>::value) {
-            std::apply([this](auto &...args) { (Impl(args), ...); }, t);
+            apply([this](auto &...args) { (Impl(args), ...); }, t);
         } else static_assert(IsTuple<T>::value, "No matching type for read");
     }
     template <class... Ts> void read(Ts &...ts) { ((Impl(ts)), ...); }
@@ -171,8 +185,8 @@ template <auto &os, bool debug, bool print_nd> struct Writer {
         else if constexpr (Iterable<T>::value) {
             if (debug) os << '{';
             int i = 0;
-            for (auto &&x : t)
-                ((i++) ? (os << comma() << Space(x), Impl(x)) : Impl(x));
+            for (auto &&X : t)
+                ((i++) ? (os << comma() << Space(X), Impl(X)) : Impl(X));
             if (debug) os << '}';
         } else if constexpr (IsTuple<T>::value) {
             if (debug) os << '(';
@@ -191,7 +205,7 @@ template <auto &os, bool debug, bool print_nd> struct Writer {
         Impl(t);
         if (debug) os << "\033[0m";
     }
-    template <class... Ts> void print(Ts const &...ts) const {
+    template <class... Ts> void ps(Ts const &...ts) const {
         ((Impl(ts)), ...);
     }
     template <class F, class... Ts>
@@ -203,7 +217,7 @@ template <auto &os, bool debug, bool print_nd> struct Writer {
 };
 
 template <class... Ts> void pr(Ts const &...ts) {
-    Writer<cout, false, true>{}.print(ts...);
+    Writer<cout, false, true>{}.ps(ts...);
 }
 template <class... Ts> void ps(Ts const &...ts) {
     Writer<cout, false, true>{}.print_with_sep(" ", ts...);
@@ -237,7 +251,7 @@ void err_prefix(str func, int line, string args) {
 #endif
 
 const auto beg_time = std::chrono::high_resolution_clock::now();
-// https://stackoverflow.com/questions/47980498/accurate-c-c-clock-on-a-multi-core-processor-with-auto-overclock?noredirect=1&lq=1
+
 double time_elapsed() {
     return chrono::duration<double>(std::chrono::high_resolution_clock::now() -
                                     beg_time)
@@ -249,35 +263,26 @@ inline namespace FileIO {
 void setIn(str s) { freopen(s.c_str(), "r", stdin); }
 void setOut(str s) { freopen(s.c_str(), "w", stdout); }
 void setIO(str s = "") {
-    cin.tie(0)->sync_with_stdio(0);  // unsync C / C++ I/O streams
+    cin.tie(0)->sync_with_stdio(0);
     cout << fixed << setprecision(12);
     if (sz(s)) setIn(s + ".in"), setOut(s + ".out");
 }
-}  // namespace FileIO
+}
+
+// START
 
 void solve(int tc) {
-    def(int, N, K, M);
-    str S;
-    re(S);
-    V<vi> nxt(M + 1, vi(K, M));
-    R0F(i, M) {
-        nxt.at(i) = nxt.at(i + 1);
-        nxt.at(i).at(S[i] - 'a') = i;
+    def(int, K, Q);
+    vi A(K);
+    FOR(I, 0, K) {
+        re(A[I]);
     }
-    str min_not;
-    int pos = 0;
-    while (pos <= M) {
-        pi best{-1, 0};
-        F0R(j, K) ckmax(best, mp(nxt[pos][j], j));
-        min_not += char('a' + best.s);
-        pos = best.f + 1;
-    }
-    while (sz(min_not) < N) min_not += 'a';
-    if (sz(min_not) <= N) {
-        ps("NO");
-        ps(min_not);
-    } else {
-        ps("YES");
+    FOR(I, 1, Q + 1) {
+        def(int, N);
+        while (N >= A[0]) {
+            N -= upper_bound(A.begin(), A.end(), N) - A.begin();
+        }
+        cout << N << " \n"[I == Q];
     }
 }
 
