@@ -1,5 +1,5 @@
 // time-limit: 2000
-// problem-url: https://codeforces.com/contest/1973/problem/E
+// problem-url: https://codeforces.com/contest/1973/problem/B
 //
 
 #include <algorithm>
@@ -273,18 +273,20 @@ void setIO(str s = "") {
 
 void solve(int tc) {
     def(int, N);
-
-
-
-
-
-
-
-
-
-
-
-
+    vi a(N + 1);
+    FOR(i, 1, N + 1) re(a[i]);
+    ll ans = 1;
+    FOR(i, 0, 21) {
+        int p = 0;
+        FOR(j, 1, N + 1) {
+            if ((a[j] >> i) & 1) {
+                ckmax(ans, (ll)(j - p));
+                p = j;
+            }
+        }
+        if (p) ckmax(ans, (ll)(N + 1 - p));
+    }
+    ps(ans);
 }
 
 int main() {

@@ -1,5 +1,5 @@
-// time-limit: 3000
-// problem-url: https://codeforces.com/contest/1973/problem/D
+// time-limit: 2000
+// problem-url: https://codeforces.com/contest/1973/problem/E
 //
 
 #include <algorithm>
@@ -271,20 +271,61 @@ void setIO(str s = "") {
 
 // START
 
+const int INF = int(1e9) + 5;
+
+vi invert_permutation(const vi &P) {
+    int n = sz(P);
+    vi inv(n);
+    FOR(i, n) inv[P[i]] = i;
+    return inv;
+}
+
 void solve(int tc) {
     def(int, N);
+    vi P(N);
+    FOR(i, N) { re(P[i]); P[i]--; }
 
+    P = invert_permutation(P);
+    bool all_good = true;
 
+    FOR(i, N) all_good = all_good && P[i] == i;
 
+    if (all_good) {
+        ps(int64_t(N) * (2 * N + 1));
+        return;
+    }
 
+    int min_sum = INF, max_sum = -INF;
+    int min_bad = INF, max_bad = -INF;
 
+    FOR(i, N) if (P[i] != i) {
+        ckmin<int>(min_bad, i);
+        ckmax<int>(max_bad, i);
+        ckmin<int>(min_sum, i + P[i]);
+        ckmax<int>(max_sum, i + P[i]);
+    }
 
+    int the_sum = min_sum == max_sum ? min_sum : -INF;
 
+    auto works = [&](int L, int R) -> bool {
+        if (L == R) return L == the_sum;
+        int lowest = L - (N - 1);
+        int highest = R;
+        return lowest <= min_bad && max_bad <= highest;
+    };
 
+    int64_t ans = 0;
+    FOR(L, -1, 2 * N - 1) {
+        int low = L, high = 2 * N - 1;
+        while (low < high) {
+            int mid = low + (high - low) / 2;
+            if (works(L, mid)) high = mid;
+            else low = mid + 1;
+        }
+        ans += 2 * N - 1 - low;
+    }
 
-
-
-
+    ps(ans);
 }
 
 int main() {

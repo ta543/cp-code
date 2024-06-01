@@ -1,5 +1,5 @@
-// time-limit: 2000
-// problem-url: https://codeforces.com/contest/1973/problem/C
+// time-limit: 1000
+// problem-url: https://codeforces.com/contest/1973/problem/A
 //
 
 #include <algorithm>
@@ -272,19 +272,13 @@ void setIO(str s = "") {
 // START
 
 void solve(int tc) {
-    def(int, N);
-
-
-
-
-
-
-
-
-
-
-
-
+    def(int, A, B, C);
+ 
+    if ((A + B + C) % 2 != 0) {
+        ps(-1);
+        return;
+    }
+    ps(min({A + B, (A + B + C) / 2}));
 }
 
 int main() {
